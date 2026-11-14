@@ -67,34 +67,41 @@ const { theme, problems } = makeColors({
 })
 
 // 動態背景「霧光儀表」：A 霧中極光＋C 資料微光。
-// 底層三團霧光慢慢飄（40～64 秒一趟）；四角有細框線，左右兩側有細光落下，
-// 右上角光環慢轉（90 秒一圈）。中間和下方留給文字與輸入框。
+// 底層三團霧光邊飄邊縮放、呼吸（18～28 秒一趟）；每 16 秒有一道柔光斜斜掃過；
+// 四角有細框線，左右兩側有細光落下（8～12 秒），右上角兩圈光環反向轉。
+// 動作要看得出來：太慢（40 秒以上）隔著毛玻璃會像靜止的圖。中間和下方留給文字與輸入框。
 // 顏色跟著系統的淺色、深色切換；系統開了「減少動態效果」就停住不動。
 const SCENE_NAME = 'mist-hud'
 
 const SCENE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
 <style>
-svg{--bg:#dde4e2;--a:#5a8f9a;--p:#8a78aa;--r:#bb8a84;--ln:#4f8792;--ao:.8;--po:.72;--ro:.55;--lo:.62;--so:.55}
-@media (prefers-color-scheme:dark){svg{--bg:#151b1e;--a:#4f8d99;--p:#8a76ad;--r:#a8716c;--ln:#8fb5bd;--ao:.62;--po:.58;--ro:.4;--lo:.55;--so:.5}}
+svg{--bg:#dde4e2;--a:#5a8f9a;--p:#8a78aa;--r:#bb8a84;--ln:#4f8792;--ao:.8;--po:.72;--ro:.55;--lo:.62;--so:.55;--sw:#ffffff;--swo:.32}
+@media (prefers-color-scheme:dark){svg{--bg:#151b1e;--a:#4f8d99;--p:#8a76ad;--r:#a8716c;--ln:#8fb5bd;--ao:.62;--po:.58;--ro:.4;--lo:.55;--so:.5;--sw:#a9cdd4;--swo:.11}}
 .bg{fill:var(--bg)}
 .fa{stop-color:var(--a);stop-opacity:var(--ao)}.fp{stop-color:var(--p);stop-opacity:var(--po)}.fr{stop-color:var(--r);stop-opacity:var(--ro)}
 .f0a{stop-color:var(--a);stop-opacity:0}.f0p{stop-color:var(--p);stop-opacity:0}.f0r{stop-color:var(--r);stop-opacity:0}
 .br{fill:none;stroke:var(--ln);stroke-opacity:var(--lo);stroke-width:4;stroke-linecap:round}
 .st{stroke:var(--ln);stroke-width:5;stroke-linecap:round;opacity:var(--so)}.st.p{stroke:var(--p)}
 .ring{fill:none;stroke:var(--ln);stroke-opacity:var(--lo);stroke-width:4;stroke-dasharray:40 18 6 18}
-.ring2{fill:none;stroke:var(--p);stroke-opacity:var(--lo);stroke-width:3}
+.ring2{fill:none;stroke:var(--p);stroke-opacity:var(--lo);stroke-width:3;stroke-dasharray:10 16}
 .dot{fill:var(--ln)}
 .bars{fill:var(--ln);fill-opacity:var(--lo)}
-@keyframes d1{to{transform:translate(170px,110px)}}
-@keyframes d2{to{transform:translate(-190px,-90px)}}
-@keyframes d3{to{transform:translate(-110px,130px)}}
-@keyframes rain{from{transform:translateY(-160px)}to{transform:translateY(1100px)}}
+@keyframes d1{to{transform:translate(380px,220px) scale(1.3)}}
+@keyframes d2{to{transform:translate(-420px,-200px) scale(1.25)}}
+@keyframes d3{to{transform:translate(-300px,260px) scale(1.4)}}
+@keyframes breathe{50%{opacity:.55}}
+@keyframes sweep{0%{transform:translateX(-900px) rotate(18deg)}55%,100%{transform:translateX(2300px) rotate(18deg)}}
+@keyframes rain{from{transform:translateY(-240px)}to{transform:translateY(1100px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{50%{opacity:.25}}
-.m1{animation:d1 40s ease-in-out infinite alternate}
-.m2{animation:d2 52s ease-in-out infinite alternate}
-.m3{animation:d3 64s ease-in-out infinite alternate}
-.spin{transform-origin:1380px 230px;animation:spin 90s linear infinite}
+.m1,.m2,.m3{transform-box:fill-box;transform-origin:center}
+.m1{animation:d1 22s ease-in-out infinite alternate,breathe 9s ease-in-out infinite}
+.m2{animation:d2 28s ease-in-out infinite alternate,breathe 11s ease-in-out -4s infinite}
+.m3{animation:d3 18s ease-in-out infinite alternate,breathe 7s ease-in-out -2s infinite}
+.spin{transform-origin:1380px 230px;animation:spin 36s linear infinite}
+.spin2{transform-origin:1380px 230px;animation:spin 24s linear infinite reverse}
+.sweep{animation:sweep 16s ease-in-out infinite}
+.sw0{stop-color:var(--sw);stop-opacity:0}.sw1{stop-color:var(--sw);stop-opacity:var(--swo)}
 .pulse{animation:pulse 6s ease-in-out infinite}
 .pulse2{animation:pulse 8s ease-in-out -3s infinite}
 @media (max-aspect-ratio:1/1){.hl{transform:translateX(330px)}.hr{transform:translateX(-330px)}}
@@ -104,26 +111,28 @@ svg{--bg:#dde4e2;--a:#5a8f9a;--p:#8a78aa;--r:#bb8a84;--ln:#4f8792;--ao:.8;--po:.
 <defs>
 <radialGradient id="ga"><stop offset="0" class="fa"/><stop offset="1" class="f0a"/></radialGradient>
 <radialGradient id="gp"><stop offset="0" class="fp"/><stop offset="1" class="f0p"/></radialGradient>
+<linearGradient id="gs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="sw0"/><stop offset=".5" class="sw1"/><stop offset="1" class="sw0"/></linearGradient>
 <radialGradient id="gr"><stop offset="0" class="fr"/><stop offset="1" class="f0r"/></radialGradient>
 </defs>
 <rect class="bg" x="-200" y="-200" width="2000" height="1400"/>
 <circle class="m1" cx="260" cy="200" r="560" fill="url(#ga)"/>
 <circle class="m2" cx="1380" cy="820" r="600" fill="url(#gp)"/>
 <circle class="m3" cx="1280" cy="140" r="400" fill="url(#gr)"/>
+<rect class="sweep" x="0" y="-500" width="360" height="2000" fill="url(#gs)"/>
 <g class="hl">
 <path class="br" d="M70 150V80h80M70 850v70h80"/>
-<line class="st" x1="150" y1="0" x2="150" y2="120" style="stroke-opacity:1;animation:rain 16s linear infinite"/>
-<line class="st" x1="205" y1="0" x2="205" y2="70" style="stroke-opacity:.7;animation:rain 22s linear -9s infinite"/>
-<line class="st" x1="260" y1="0" x2="260" y2="100" style="stroke-opacity:.85;animation:rain 19s linear -4s infinite"/>
+<line class="st" x1="150" y1="0" x2="150" y2="200" style="stroke-opacity:1;animation:rain 8s linear infinite"/>
+<line class="st" x1="205" y1="0" x2="205" y2="130" style="stroke-opacity:.7;animation:rain 11s linear -5s infinite"/>
+<line class="st" x1="260" y1="0" x2="260" y2="170" style="stroke-opacity:.85;animation:rain 9.5s linear -2s infinite"/>
 <g class="bars"><rect x="100" y="760" width="150" height="6" rx="3"/><rect x="100" y="780" width="95" height="6" rx="3"/><rect class="pulse2" x="100" y="800" width="125" height="6" rx="3"/></g>
 </g>
 <g class="hr">
 <path class="br" d="M1530 150V80h-80M1530 850v70h-80"/>
-<line class="st p" x1="1340" y1="0" x2="1340" y2="90" style="stroke-opacity:.8;animation:rain 21s linear -13s infinite"/>
-<line class="st" x1="1395" y1="0" x2="1395" y2="130" style="stroke-opacity:.95;animation:rain 17s linear -2s infinite"/>
-<line class="st p" x1="1450" y1="0" x2="1450" y2="80" style="stroke-opacity:.7;animation:rain 24s linear -7s infinite"/>
+<line class="st p" x1="1340" y1="0" x2="1340" y2="150" style="stroke-opacity:.8;animation:rain 10.5s linear -7s infinite"/>
+<line class="st" x1="1395" y1="0" x2="1395" y2="210" style="stroke-opacity:.95;animation:rain 8.5s linear -1s infinite"/>
+<line class="st p" x1="1450" y1="0" x2="1450" y2="140" style="stroke-opacity:.7;animation:rain 12s linear -4s infinite"/>
 <g class="spin"><circle class="ring" cx="1380" cy="230" r="105"/></g>
-<circle class="ring2" cx="1380" cy="230" r="68"/>
+<circle class="ring2 spin2" cx="1380" cy="230" r="68"/>
 <circle class="dot pulse" cx="1380" cy="230" r="7"/>
 </g>
 </svg>`
