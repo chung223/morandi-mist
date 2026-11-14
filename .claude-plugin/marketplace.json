@@ -1,0 +1,6 @@
+{
+  "name": "morandi-mist",
+  "description": "霧光：Claude 桌面版的莫蘭迪色系主題",
+  "owner": { "name": "chung223" },
+  "plugins": [{ "name": "morandi-mist", "source": "./" }]
+}
