@@ -1,16 +1,17 @@
 # 霧光 Morandi Mist
 
-Claude 桌面版（Code 分頁）的主題。用莫蘭迪低彩度配色營造未來感，看久了眼睛也不累。淺色、深色兩版都有，還有一張會慢慢動的背景。
+Claude 桌面版（Code 分頁）的主題。用莫蘭迪低彩度配色營造未來感，看久了眼睛也不累。淺色、深色兩版都有，背景是一條慢慢流動的光絲。
 
-A calm, futuristic Morandi-palette theme for the Claude desktop app, with light and dark modes and a slow animated backdrop.
+A calm, futuristic Morandi-palette theme for the Claude desktop app, with light and dark modes and a slow, silk-like animated backdrop.
 
 ## 長什麼樣子
 
 - **淺色**：霧灰綠的底，深石板藍的字。強調色是霧湖藍。
 - **深色**：夜霧藍灰的底，帶一點綠的米白字。深色是同一個「霧」的夜晚版，不是把淺色反過來。
 - **狀態色**：紅、綠、黃還是錯誤、成功、警告的意思，只是都調成灰調。程式碼也用這幾個顏色上色。
-- **動態背景**：左上一團湖藍霧光、右下一團灰紫霧光，40～64 秒慢慢飄一趟。四個角有細框線，左右兩側有細光往下落，右上角有光環慢慢轉。中間和下方留給對話與輸入框。
+- **動態背景「光絲流」**：四十幾條極細光絲疊成一條絲綢，大幅度橫向起伏，慢慢往左流，左右兩端淡出。每條速度略有不同，所以會慢慢交錯，形狀一直在變。另外有稀疏的極細粒子分三層由左往右漂，近的快、遠的慢。顏色由上到下從湖藍、鼠尾草綠、沙色、乾燥玫瑰漸變到灰紫。
 - 背景跟著系統的淺色、深色切換。系統開了「減少動態效果」的話，背景會停住不動。
+- 背景是不跑程式的 SVG 動畫，所以不會跟著滑鼠移動。
 
 ## 安裝
 
@@ -41,8 +42,8 @@ claude plugin install morandi-mist --marketplace chung223/morandi-mist
 配色和背景都寫在 [`hooks/register.tsx`](hooks/register.tsx)：
 
 - 配色：`makeColors` 裡的 `light`、`dark` 兩組底色與文字色，以及 `ROLES` 裡的強調色和狀態色。
-- 背景：`SCENE_SVG` 是一張 SVG，動畫用 CSS 寫在裡面的 `<style>`。
-- 毛玻璃：`LOOK` 裡的 `glass`。`opacity` 越大，背景越淡。
+- 背景：`SCENE_SVG` 這張 SVG 是 [`tools/gen-silk.mjs`](tools/gen-silk.mjs) 產生的。改產生器開頭的參數（光絲條數、粗細、波浪幅度、速度、粒子數量），執行 `node tools/gen-silk.mjs silk.svg`，再把 `silk.svg` 的內容整段貼回 `SCENE_SVG`。
+- 毛玻璃：`LOOK` 裡的 `glass`。`blur` 越大越模糊，`opacity` 越大背景越淡。光絲和粒子很細，`blur` 太大會看不見。
 
 ## 授權
 
