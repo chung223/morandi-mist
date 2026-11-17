@@ -1,18 +1,15 @@
 # 霧光 Morandi Mist
 
-Claude 桌面版（Code 分頁）的主題。用莫蘭迪低彩度配色營造未來感，看久了眼睛也不累。淺色、深色兩版都有，背景是一條慢慢流動的光絲。
+Claude 桌面版（Code 分頁）的配色主題。用莫蘭迪低彩度配色營造安靜的未來感，看久了眼睛也不累。淺色、深色兩版都有。
 
-A calm, futuristic Morandi-palette theme for the Claude desktop app, with light and dark modes and a slow, silk-like animated backdrop.
+A calm, futuristic Morandi-palette color theme for the Claude desktop app, with light and dark modes.
 
 ## 長什麼樣子
 
 - **淺色**：霧灰綠的底，深石板藍的字。強調色是霧湖藍。
 - **深色**：夜霧藍灰的底，帶一點綠的米白字。深色是同一個「霧」的夜晚版，不是把淺色反過來。
 - **狀態色**：紅、綠、黃還是錯誤、成功、警告的意思，只是都調成灰調。程式碼也用這幾個顏色上色。
-- **動態背景「光絲流」**：兩束極細光絲交織。主束 22 條往左流，副束 12 條往右流、波長比較短、比較淡，左右兩端淡出。另外有稀疏的極細粒子分三層由左往右漂，近的快、遠的慢。顏色由上到下從湖藍、鼠尾草綠、沙色、乾燥玫瑰漸變到灰紫。
-- **動一陣、停一陣**：所有東西一起緩緩流動 20 秒，再一起完全靜止 20 秒。靜止時畫面完全不用重畫，不耗資源。流動時同一束裡的幾組光絲走的距離略有不同，形狀會微微變化。無限循環，接縫對齊。
-- 背景跟著系統的淺色、深色切換。
-- 背景是不跑程式的 SVG 動畫，所以不會跟著滑鼠移動。動畫用 SVG 內建的 `<animateTransform>`，不會理會系統的「減少動態效果」設定。
+- 只換配色，沒有動態背景，不會額外耗電。
 
 ## 安裝
 
@@ -40,12 +37,15 @@ claude plugin install morandi-mist --marketplace chung223/morandi-mist
 
 ## 想自己改
 
-配色和背景都寫在 [`hooks/register.tsx`](hooks/register.tsx)：
+配色寫在 [`hooks/register.tsx`](hooks/register.tsx)：`makeColors` 裡的 `light`、`dark` 兩組底色與文字色，以及 `ROLES` 裡的強調色和狀態色。
 
-- 配色：`makeColors` 裡的 `light`、`dark` 兩組底色與文字色，以及 `ROLES` 裡的強調色和狀態色。
-- 背景：`SCENE_SVG` 這張 SVG 是 [`tools/gen-silk.mjs`](tools/gen-silk.mjs) 產生的。改產生器開頭的參數（流動和靜止各幾秒、光絲條數、粗細、波浪幅度、粒子數量），執行 `node tools/gen-silk.mjs silk.svg`，再把 `silk.svg` 的內容整段貼回 `SCENE_SVG`。
-- 效能：背景只要有東西在動，整個畫面就要重畫，負擔大約是「重畫次數 × 光絲條數」。光絲加太多會卡；用 CSS 動畫的話，就算靜止也會一直重畫，所以這裡用 SVG 內建的 `<animateTransform>`。
-- 毛玻璃：`LOOK` 裡的 `glass`。`blur` 越大越模糊，`opacity` 越大背景越淡。光絲和粒子很細，`blur` 太大會看不見。
+### 關於動態背景
+
+之前的版本有會動的背景（光絲、粒子），在桌面版遇到這些問題，所以拿掉了，舊版留在 git 紀錄裡：
+
+- 背景只要有東西在動，整個畫面就要重畫。細線一多，畫面就會一陣一陣卡住。
+- 用 CSS 寫的動畫就算靜止也會一直重畫；改用 SVG 內建的 `<animateTransform>`，播完就停的寫法在桌面版又會停住不再動。
+- 改成一直播放的寫法後，畫面會整片閃爍。
 
 ## 授權
 
